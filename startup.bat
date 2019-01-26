@@ -1,0 +1,1 @@
+java -jar lib/G12306.jar

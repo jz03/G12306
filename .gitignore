@@ -5,6 +5,7 @@ target/
 .idea/
 lib/
 *.dat
+*.html
 
 # Log file
 *.log

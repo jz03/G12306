@@ -15,6 +15,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.apache.log4j.Logger;
 import util.Constants;
 import util.SendEmail;
 
@@ -32,27 +33,28 @@ import java.util.TimerTask;
  **/
 @SuppressWarnings("Since15")
 public class TicketTimeTask extends TimerTask {
+    /*日志监控*/
+    private static final Logger logger = Logger.getLogger(TicketTimeTask.class);
 
     public void run() {
         String url = Constants.URL;
         Date dateNow = new Date();
         SimpleDateFormat format = new SimpleDateFormat(Constants.DATE_FORMAT);
         String time = format.format(dateNow);
-        System.out.println(time + Constants.SPACE_1 + Constants.START_LOG);
+        logger.info(Constants.START_LOG);
         try{
             String result = getReq(url);
+            logger.info(result);
             List<String> ticList = filterMsg(result);
             //如果查询到了信息，发送出去
             if(ticList.size()!=0){
-                System.out.println(Constants.CURRENT_TIME_LOG + time);
-
-                System.out.println("共"+ticList.size()+"趟.");
+                logger.info("共"+ticList.size()+"趟.");
                 writeExcel(ticList, time);
             }
         }catch (Exception e){
-            System.out.println(Constants.EXCEPTION_LOG);
+            logger.info(Constants.EXCEPTION_LOG);
         }
-        System.out.println(Constants.END_LOG);
+        logger.info(Constants.END_LOG);
     }
 
     /**
@@ -63,6 +65,7 @@ public class TicketTimeTask extends TimerTask {
      * @param time
      */
     private void writeExcel(List<String> ticList, String time) throws Exception{
+        logger.info("开始写入Excel文件...");
         Workbook  workbook = Workbook.getWorkbook(new File(Constants.FILE_PATH));
 
         //创建一个副本
@@ -80,11 +83,14 @@ public class TicketTimeTask extends TimerTask {
             Label con = new Label(col, row, strs[1]);
             sheet.addCell(con);
         }
+        writeWorkbook.write();
+        writeWorkbook.close();
+        logger.info("excel写入成功！");
+        logger.info("开始发送电子邮件...");
         //发送邮件
         SendEmail sendEmail = new SendEmail();
         sendEmail.send(Constants.SUBJECT, sb.toString());
-        writeWorkbook.write();
-        writeWorkbook.close();
+        logger.info("电子邮件发送成功！");
 
     }
 
@@ -94,6 +100,7 @@ public class TicketTimeTask extends TimerTask {
      * @return
      */
     private static List<String> filterMsg(String input){
+        logger.info("开始过滤json数据...");
         List<String> resList = new ArrayList<String>();
         JSONObject object = JSON.parseObject(input);
         JSONObject data = object.getJSONObject("data");
@@ -115,6 +122,7 @@ public class TicketTimeTask extends TimerTask {
                 resList.add(tic);
             }
         }
+        logger.info("json数据过滤成功");
         return resList;
     }
 
@@ -124,6 +132,7 @@ public class TicketTimeTask extends TimerTask {
      * @return
      */
     private static String getReq(String url){
+        logger.info("开始请求网址...");
         String result = Constants.SPACE_0;
         // 创建客户端
         CloseableHttpClient httpclient = HttpClients.createDefault();
@@ -154,6 +163,7 @@ public class TicketTimeTask extends TimerTask {
                 }
             }catch(Exception e){}
         }
+        logger.info("网址请求成功！");
         return result;
     }
 

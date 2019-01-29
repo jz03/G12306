@@ -12,7 +12,7 @@ public final class Constants {
     /*程序间隔时间：1分钟*/
     public static int PERIOD_TIME = 60000;
     /*发车日期*/
-    public static String DATE = "2019-02-22";
+    public static String DATE = "2019-02-12";
     /*12306请求url*/
     public static String URL = "https://kyfw.12306.cn/otn/leftTicket/queryZ?leftTicketDTO.train_date="+DATE+"&leftTicketDTO.from_station=ZZF&leftTicketDTO.to_station=SHH&purpose_codes=ADULT";
     /*日期格式*/
